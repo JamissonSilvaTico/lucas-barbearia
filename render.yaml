@@ -25,11 +25,6 @@ services:
           property: connectionString
       - key: NODE_ENV
         value: production
-      - key: FRONTEND_URL
-        fromService:
-          type: static
-          name: lucas-barbearia-frontend
-          property: url
 
   # 3. O Frontend (Site Estático) em React
   - type: static
