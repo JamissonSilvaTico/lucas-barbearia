@@ -103,13 +103,21 @@ const initializeDatabase = async () => {
   }
 };
 
-// Helper para mapear IDs para string
-const mapIdsToString = (rows) =>
-  rows.map((row) => ({
-    ...row,
-    id: String(row.id),
-    serviceId: row.serviceId ? String(row.serviceId) : undefined,
-  }));
+// Helper para analisar dados antes de enviar ao cliente.
+// Converte strings numéricas do DB (como preço) para números e
+// BigInts (como IDs) para strings para evitar problemas de serialização.
+const parseDataForClient = (rows) =>
+  rows.map((row) => {
+    const parsedRow = { ...row };
+    if (parsedRow.id) parsedRow.id = String(parsedRow.id);
+    if (parsedRow.serviceId) parsedRow.serviceId = String(parsedRow.serviceId);
+    // O driver 'pg' retorna tipos NUMERIC como strings para manter a precisão.
+    // Convertemos o preço de volta para um número para o frontend.
+    if (parsedRow.price && typeof parsedRow.price === "string") {
+      parsedRow.price = parseFloat(parsedRow.price);
+    }
+    return parsedRow;
+  });
 
 // --- ROTAS DA API ---
 
@@ -128,8 +136,8 @@ app.get("/api/data", async (req, res) => {
     );
 
     res.json({
-      services: mapIdsToString(servicesRes.rows),
-      appointments: mapIdsToString(appointmentsRes.rows),
+      services: parseDataForClient(servicesRes.rows),
+      appointments: parseDataForClient(appointmentsRes.rows),
       homeContent: settingsRes.rows[0],
     });
   } catch (err) {
@@ -164,7 +172,7 @@ app.post("/api/services", async (req, res) => {
       "INSERT INTO services (name, price, duration) VALUES ($1, $2, $3) RETURNING *",
       [name, price, duration]
     );
-    res.status(201).json(mapIdsToString(result.rows)[0]);
+    res.status(201).json(parseDataForClient(result.rows)[0]);
   } catch (err) {
     res.status(500).json({ error: "Failed to create service" });
   }
@@ -178,7 +186,7 @@ app.put("/api/services/:id", async (req, res) => {
       "UPDATE services SET name = $1, price = $2, duration = $3 WHERE id = $4 RETURNING *",
       [name, price, duration, parseInt(id)]
     );
-    res.json(mapIdsToString(result.rows)[0]);
+    res.json(parseDataForClient(result.rows)[0]);
   } catch (err) {
     res.status(500).json({ error: "Failed to update service" });
   }
@@ -210,7 +218,7 @@ app.post("/api/appointments", async (req, res) => {
         time,
       ]
     );
-    res.status(201).json(mapIdsToString(result.rows)[0]);
+    res.status(201).json(parseDataForClient(result.rows)[0]);
   } catch (err) {
     res.status(500).json({ error: "Failed to create appointment" });
   }
