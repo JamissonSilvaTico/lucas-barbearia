@@ -1,14 +1,14 @@
 # render.yaml - Define a infraestrutura da aplicação na Render.
 # Este arquivo automatiza a criação de todos os serviços.
 
-services:
+databases:
   # 1. O Banco de Dados PostgreSQL
-  - type: db # CORREÇÃO: O tipo correto para um banco de dados PostgreSQL é "db"
-    name: lucas-barbearia-db
+  - name: lucas-barbearia-db
     databaseName: barbeariadb
     user: lucas_barbeiro
     plan: free # Usa o plano gratuito da Render
 
+services:
   # 2. O Backend (API) em Node.js/Express
   - type: web
     name: lucas-barbearia-api

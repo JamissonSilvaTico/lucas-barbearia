@@ -1,6 +1,3 @@
-// Fix: Added Vite client type reference to define `import.meta.env`.
-/// <reference types="vite/client" />
-
 import React, {
   createContext,
   useContext,
