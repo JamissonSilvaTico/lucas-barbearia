@@ -2,6 +2,11 @@ const express = require("express");
 const cors = require("cors");
 const { Pool } = require("pg");
 
+if (!process.env.DATABASE_URL) {
+  console.error("FATAL ERROR: DATABASE_URL environment variable is not set.");
+  process.exit(1);
+}
+
 const app = express();
 const PORT = process.env.PORT || 10000;
 
