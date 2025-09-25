@@ -5,38 +5,20 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Lucas Barbearia</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-      tailwind.config = {
-        theme: {
-          extend: {
-            colors: {
-              'brand-primary': '#B8860B',
-              'brand-secondary': '#D4AF37',
-              'dark-1': '#121212',
-              'dark-2': '#1E1E1E',
-              'dark-3': '#2C2C2C',
-              'light-1': '#FFFFFF',
-              'light-2': '#F3F4F6',
-              'light-3': '#E5E7EB',
-            },
-          }
+    <script type="importmap">
+      {
+        "imports": {
+          "vite": "https://aistudiocdn.com/vite@^7.1.7",
+          "@vitejs/plugin-react": "https://aistudiocdn.com/@vitejs/plugin-react@^5.0.3",
+          "@google/genai": "https://aistudiocdn.com/@google/genai@^1.20.0",
+          "react-dom/": "https://aistudiocdn.com/react-dom@^19.1.1/",
+          "react/": "https://aistudiocdn.com/react@^19.1.1/",
+          "react": "https://aistudiocdn.com/react@^19.1.1",
+          "react-router-dom": "https://aistudiocdn.com/react-router-dom@^7.9.2"
         }
       }
     </script>
-  <script type="importmap">
-{
-  "imports": {
-    "react-router-dom": "https://aistudiocdn.com/react-router-dom@^7.9.2",
-    "react-dom/": "https://aistudiocdn.com/react-dom@^19.1.1/",
-    "react/": "https://aistudiocdn.com/react@^19.1.1/",
-    "react": "https://aistudiocdn.com/react@^19.1.1",
-    "@google/genai": "https://aistudiocdn.com/google-genai@0.0.4"
-  }
-}
-</script>
-<link rel="stylesheet" href="/index.css">
-</head>
+  </head>
   <body class="bg-dark-1 text-light-2">
     <div id="root"></div>
     <script type="module" src="/index.tsx"></script>

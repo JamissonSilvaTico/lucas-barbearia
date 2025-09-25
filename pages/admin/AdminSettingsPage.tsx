@@ -70,7 +70,8 @@ const AdminSettingsPage: React.FC = () => {
         contents: prompt,
       });
 
-      const text = response.text.trim();
+      // Fix: Aligned with Gemini API guidelines to extract text directly from the `text` property.
+      const text = response.text;
       setContentForm((prev) => ({ ...prev, [field]: text }));
     } catch (error) {
       console.error("Error generating content:", error);
