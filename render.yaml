@@ -3,7 +3,7 @@
 
 services:
   # 1. O Banco de Dados PostgreSQL
-  - type: psql
+  - type: db # CORREÇÃO: O tipo correto para um banco de dados PostgreSQL é "db"
     name: lucas-barbearia-db
     databaseName: barbeariadb
     user: lucas_barbeiro

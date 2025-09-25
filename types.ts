@@ -1,5 +1,3 @@
-/// <reference types="vite/client" />
-
 export interface Service {
   id: string;
   name: string;
