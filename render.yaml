@@ -1,44 +1,44 @@
 # render.yaml - Define a infraestrutura da aplicação na Render.
-# Este arquivo automatiza a criação de todos os serviços.
+# Este arquivo foi desativado para permitir um deploy manual via painel do Render.
 
-databases:
-  # 1. O Banco de Dados PostgreSQL
-  - name: lucas-barbearia-db
-    databaseName: barbeariadb
-    user: lucas_barbeiro
-    plan: free # Usa o plano gratuito da Render
+# databases:
+#   # 1. O Banco de Dados PostgreSQL
+#   - name: lucas-barbearia-db
+#     databaseName: barbeariadb
+#     user: lucas_barbeiro
+#     plan: free # Usa o plano gratuito da Render
 
-services:
-  # 2. O Backend (API) em Node.js/Express
-  - type: web
-    name: lucas-barbearia-api
-    runtime: node
-    plan: free
-    rootDir: backend # Especifica que o código do backend está na pasta /backend
-    buildCommand: "npm install"
-    startCommand: "node server.js"
-    healthCheckPath: "/api/health"
-    envVars:
-      - key: DATABASE_URL
-        fromDatabase:
-          name: lucas-barbearia-db
-          property: connectionString
-      - key: NODE_ENV
-        value: production
+# services:
+#   # 2. O Backend (API) em Node.js/Express
+#   - type: web
+#     name: lucas-barbearia-api
+#     runtime: node
+#     plan: free
+#     rootDir: backend # Especifica que o código do backend está na pasta /backend
+#     buildCommand: "npm install"
+#     startCommand: "node server.js"
+#     healthCheckPath: "/api/health"
+#     envVars:
+#       - key: DATABASE_URL
+#         fromDatabase:
+#           name: lucas-barbearia-db
+#           property: connectionString
+#       - key: NODE_ENV
+#         value: production
 
-  # 3. O Frontend (Site Estático) em React
-  - type: static
-    name: lucas-barbearia-frontend
-    # Assumindo que seu package.json tem um script "build" que gera a pasta "dist"
-    buildCommand: "npm install && npm run build"
-    publishPath: "./dist"
-    routes:
-      - type: rewrite
-        source: /*
-        destination: /index.html
-    envVars:
-      - key: VITE_API_URL # Disponibiliza a URL da API para o código do frontend
-        fromService:
-          type: web
-          name: lucas-barbearia-api
-          property: url
+#   # 3. O Frontend (Site Estático) em React
+#   - type: static
+#     name: lucas-barbearia-frontend
+#     # Assumindo que seu package.json tem um script "build" que gera a pasta "dist"
+#     buildCommand: "npm install && npm run build"
+#     publishPath: "./dist"
+#     routes:
+#       - type: rewrite
+#         source: /*
+#         destination: /index.html
+#     envVars:
+#       - key: VITE_API_URL # Disponibiliza a URL da API para o código do frontend
+#         fromService:
+#           type: web
+#           name: lucas-barbearia-api
+#           property: url

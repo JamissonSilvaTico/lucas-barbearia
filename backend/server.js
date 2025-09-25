@@ -15,7 +15,14 @@ const pool = new Pool({
 });
 
 // Middlewares
-app.use(cors()); // Permite requisições de qualquer origem
+// Configuração de CORS mais segura para permitir a comunicação
+// apenas do seu frontend, tanto em produção quanto em desenvolvimento local.
+const corsOptions = {
+  // A variável FRONTEND_URL será configurada no painel do Render.
+  // O fallback é para o ambiente de desenvolvimento local do Vite.
+  origin: process.env.FRONTEND_URL || "http://localhost:5173",
+};
+app.use(cors(corsOptions));
 app.use(express.json());
 
 // Função para inicializar o banco de dados
