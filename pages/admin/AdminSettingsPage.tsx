@@ -175,7 +175,7 @@ const AdminSettingsPage: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Home Page Content */}
         <div className="bg-dark-1 p-6 rounded-lg">
-          <h2 className="text-2xl font-bold mb-4">Página Inicial com IA</h2>
+          <h2 className="text-2xl font-bold mb-4">Página de configurações</h2>
           {generationError && (
             <p className="text-red-500 mb-4">{generationError}</p>
           )}
