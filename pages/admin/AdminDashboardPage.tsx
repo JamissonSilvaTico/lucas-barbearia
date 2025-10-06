@@ -97,11 +97,8 @@ const AdminDashboardPage: React.FC = () => {
               </thead>
               <tbody>
                 {filteredAppointments.map((app) => {
-                  const rawDateOnly = app.date.split("T")[0];
-                  const appointmentDate = new Date(
-                    `${rawDateOnly} ${app.time}`
-                  );
-
+                  const service = services.find((s) => s.id === app.serviceId);
+                  const appointmentDate = new Date(`${app.date} ${app.time}`);
                   return (
                     <tr
                       key={app.id}
@@ -110,13 +107,7 @@ const AdminDashboardPage: React.FC = () => {
                       <td className="p-4">{app.clientName}</td>
                       <td className="p-4">{service?.name || "N/A"}</td>
                       <td className="p-4">
-                        {!isNaN(appointmentDate.getTime())
-                          ? appointmentDate.toLocaleString("pt-BR", {
-                              // Garante que o mês/dia/ano e a hora/minuto sejam exibidos
-                              dateStyle: "short",
-                              timeStyle: "short",
-                            })
-                          : "Data Inválida"}
+                        {app.date} {app.time}
                       </td>
                       <td className="p-4">{app.clientPhone}</td>
                       <td className="p-4">
