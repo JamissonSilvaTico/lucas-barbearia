@@ -8,9 +8,8 @@ import React, {
 } from "react";
 import { Service, Appointment, HomePageContent } from "../types";
 
-export const API_BASE_URL =
-  import.meta.env.VITE_API_URL || "http://localhost:10000";
-
+export const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const response = await fetch(`${BASE_URL}/api/data/1`);
 interface DataContextType {
   services: Service[];
   appointments: Appointment[];
@@ -39,7 +38,7 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({
   const fetchData = useCallback(async () => {
     try {
       setIsLoading(true);
-      const response = await fetch(`${API_BASE_URL}/api/data`);
+      const response = await fetch(`${BASE_URL}/api/data`);
       const data = await response.json();
       setServices(data.services || []);
       setAppointments(data.appointments || []);
@@ -56,7 +55,7 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({
   }, [fetchData]);
 
   const apiRequest = async (endpoint: string, method: string, body?: any) => {
-    const response = await fetch(`${API_BASE_URL}/api${endpoint}`, {
+    const response = await fetch(`${BASE_URL}/api${endpoint}`, {
       method,
       headers: { "Content-Type": "application/json" },
       body: body ? JSON.stringify(body) : undefined,
