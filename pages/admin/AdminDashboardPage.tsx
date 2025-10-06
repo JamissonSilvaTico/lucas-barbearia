@@ -107,12 +107,7 @@ const AdminDashboardPage: React.FC = () => {
                       <td className="p-4">{app.clientName}</td>
                       <td className="p-4">{service?.name || "N/A"}</td>
                       <td className="p-4">
-                        {!isNaN(appointmentDate.getTime())
-                          ? appointmentDate.toLocaleString("pt-BR", {
-                              dateStyle: "short",
-                              timeStyle: "short",
-                            })
-                          : "Data Inválida"}
+                        {app.date} {app.time}
                       </td>
                       <td className="p-4">{app.clientPhone}</td>
                       <td className="p-4">
