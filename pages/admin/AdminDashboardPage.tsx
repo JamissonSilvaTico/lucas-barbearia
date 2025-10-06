@@ -24,8 +24,8 @@ const AdminDashboardPage: React.FC = () => {
       .filter((a) => !filterDate || a.date === filterDate)
       .sort(
         (a, b) =>
-          new Date(b.date + "T" + b.time).getTime() -
-          new Date(a.date + "T" + a.time).getTime()
+          new Date(b.date + " " + b.time).getTime() -
+          new Date(a.date + " " + a.time).getTime()
       );
   }, [appointments, filterService, filterDate]);
 
@@ -98,7 +98,7 @@ const AdminDashboardPage: React.FC = () => {
               <tbody>
                 {filteredAppointments.map((app) => {
                   const service = services.find((s) => s.id === app.serviceId);
-                  const appointmentDate = new Date(`${app.date}T${app.time}`);
+                  const appointmentDate = new Date(`${app.date} ${app.time}`);
                   return (
                     <tr
                       key={app.id}
