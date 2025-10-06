@@ -38,7 +38,7 @@ const AdminSettingsPage: React.FC = () => {
   // FIX: Updated GoogleGenAI initialization to use a non-null assertion for the API key,
   // ensuring compliance with guidelines and improving type safety.
   const ai = useMemo(
-    () => new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY! }),
+    () => new GoogleGenAI({ apiKey: process.env.API_KEY! }),
     []
   );
 
