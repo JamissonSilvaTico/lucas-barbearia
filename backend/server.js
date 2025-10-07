@@ -3,7 +3,7 @@ const cors = require("cors");
 const { Pool } = require("pg");
 
 // 🚨 NOVO: Importa a função de envio de e-mail
-const { sendAppointmentConfirmation } = require("../utils/mailer");
+const { sendAppointmentConfirmation } = require("../server/utils/mailer");
 
 if (!process.env.DATABASE_URL) {
   console.error("FATAL ERROR: DATABASE_URL environment variable is not set.");
