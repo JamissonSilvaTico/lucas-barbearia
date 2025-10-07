@@ -2,6 +2,9 @@ const express = require("express");
 const cors = require("cors");
 const { Pool } = require("pg");
 
+// 🚨 NOVO: Importa a função de envio de e-mail
+const { sendAppointmentConfirmation } = require("./utils/mailer");
+
 if (!process.env.DATABASE_URL) {
   console.error("FATAL ERROR: DATABASE_URL environment variable is not set.");
   process.exit(1);
@@ -20,11 +23,7 @@ const pool = new Pool({
 });
 
 // Middlewares
-// Configuração de CORS mais segura para permitir a comunicação
-// apenas do seu frontend, tanto em produção quanto em desenvolvimento local.
 const corsOptions = {
-  // A variável FRONTEND_URL será configurada no painel do Render.
-  // O fallback é para o ambiente de desenvolvimento local do Vite.
   origin: process.env.FRONTEND_URL || "http://localhost:5173",
 };
 app.use(cors(corsOptions));
@@ -34,62 +33,58 @@ app.use(express.json());
 const initializeDatabase = async () => {
   const client = await pool.connect();
   try {
-    await client.query("BEGIN");
+    await client.query("BEGIN"); // Tabela de serviços
 
-    // Tabela de serviços
     await client.query(`
-      CREATE TABLE IF NOT EXISTS services (
-        id SERIAL PRIMARY KEY,
-        name VARCHAR(100) NOT NULL,
-        price NUMERIC(10, 2) NOT NULL,
-        duration INTEGER NOT NULL
-      );
-    `);
+      CREATE TABLE IF NOT EXISTS services (
+        id SERIAL PRIMARY KEY,
+        name VARCHAR(100) NOT NULL,
+        price NUMERIC(10, 2) NOT NULL,
+        duration INTEGER NOT NULL
+      );
+    `); // Tabela de agendamentos
 
-    // Tabela de agendamentos
     await client.query(`
-      CREATE TABLE IF NOT EXISTS appointments (
-        id SERIAL PRIMARY KEY,
-        "clientName" VARCHAR(100) NOT NULL,
-        "clientPhone" VARCHAR(20) NOT NULL,
-        "clientInstagram" VARCHAR(100),
-        "serviceId" INTEGER REFERENCES services(id) ON DELETE SET NULL,
-        date DATE NOT NULL,
-        time TIME NOT NULL,
-        "createdAt" TIMESTAMPTZ NOT NULL DEFAULT NOW()
-      );
-    `);
+      CREATE TABLE IF NOT EXISTS appointments (
+        id SERIAL PRIMARY KEY,
+        "clientName" VARCHAR(100) NOT NULL,
+        "clientPhone" VARCHAR(20) NOT NULL,
+        "clientInstagram" VARCHAR(100),
+        "serviceId" INTEGER REFERENCES services(id) ON DELETE SET NULL,
+        date DATE NOT NULL,
+        time TIME NOT NULL,
+        "createdAt" TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      );
+    `); // Tabela de configurações (conteúdo da home, senha)
 
-    // Tabela de configurações (conteúdo da home, senha)
     await client.query(`
-      CREATE TABLE IF NOT EXISTS settings (
-        id INTEGER PRIMARY KEY DEFAULT 1,
-        title VARCHAR(255),
-        subtitle VARCHAR(255),
-        description TEXT,
-        "ctaButtonLink" VARCHAR(255),
-        "adminPassword" VARCHAR(100)
-      );
-    `);
+      CREATE TABLE IF NOT EXISTS settings (
+        id INTEGER PRIMARY KEY DEFAULT 1,
+        title VARCHAR(255),
+        subtitle VARCHAR(255),
+        description TEXT,
+        "ctaButtonLink" VARCHAR(255),
+        "adminPassword" VARCHAR(100)
+      );
+    `); // Seeding inicial (apenas se as tabelas estiverem vazias)
 
-    // Seeding inicial (apenas se as tabelas estiverem vazias)
     const servicesCount = await client.query("SELECT COUNT(*) FROM services");
     if (servicesCount.rows[0].count === "0") {
       await client.query(`
-        INSERT INTO services (name, price, duration) VALUES
-        ('Corte de Cabelo', 40, 45),
-        ('Barba', 30, 30),
-        ('Corte e Barba', 65, 75),
-        ('Pezinho', 15, 15);
-      `);
+        INSERT INTO services (name, price, duration) VALUES
+        ('Corte de Cabelo', 40, 45),
+        ('Barba', 30, 30),
+        ('Corte e Barba', 65, 75),
+        ('Pezinho', 15, 15);
+      `);
     }
 
     const settingsCount = await client.query("SELECT COUNT(*) FROM settings");
     if (settingsCount.rows[0].count === "0") {
       await client.query(`
-        INSERT INTO settings (title, subtitle, description, "ctaButtonLink", "adminPassword") VALUES
-        ('Lucas Barbearia', 'Estilo e Precisão em Cada Corte', 'Experimente a combinação perfeita de tradição e modernidade. Nossos barbeiros especializados estão prontos para oferecer o melhor serviço, garantindo um visual impecável e uma experiência única.', 'https://wa.me/5511999999999', 'admin123');
-      `);
+        INSERT INTO settings (title, subtitle, description, "ctaButtonLink", "adminPassword") VALUES
+        ('Lucas Barbearia', 'Estilo e Precisão em Cada Corte', 'Experimente a combinação perfeita de tradição e modernidade. Nossos barbeiros especializados estão prontos para oferecer o melhor serviço, garantindo um visual impecável e uma experiência única.', 'https://wa.me/5511999999999', 'admin123');
+      `);
     }
 
     await client.query("COMMIT");
@@ -104,15 +99,11 @@ const initializeDatabase = async () => {
 };
 
 // Helper para analisar dados antes de enviar ao cliente.
-// Converte strings numéricas do DB (como preço) para números e
-// BigInts (como IDs) para strings para evitar problemas de serialização.
 const parseDataForClient = (rows) =>
   rows.map((row) => {
     const parsedRow = { ...row };
     if (parsedRow.id) parsedRow.id = String(parsedRow.id);
     if (parsedRow.serviceId) parsedRow.serviceId = String(parsedRow.serviceId);
-    // O driver 'pg' retorna tipos NUMERIC como strings para manter a precisão.
-    // Convertemos o preço de volta para um número para o frontend.
     if (parsedRow.price && typeof parsedRow.price === "string") {
       parsedRow.price = parseFloat(parsedRow.price);
     }
@@ -207,6 +198,7 @@ app.post("/api/appointments", async (req, res) => {
   const { clientName, clientPhone, clientInstagram, serviceId, date, time } =
     req.body;
   try {
+    // 1. Inserir no DB (salvar o agendamento)
     const result = await pool.query(
       'INSERT INTO appointments ("clientName", "clientPhone", "clientInstagram", "serviceId", date, time) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
       [
@@ -218,8 +210,23 @@ app.post("/api/appointments", async (req, res) => {
         time,
       ]
     );
-    res.status(201).json(parseDataForClient(result.rows)[0]);
+    const novoAgendamento = parseDataForClient(result.rows)[0];
+
+    // 2. Buscar nome do serviço para o e-mail
+    const serviceRes = await pool.query(
+      "SELECT name FROM services WHERE id = $1",
+      [parseInt(serviceId)]
+    );
+    const nomeServico = serviceRes.rows[0]?.name || "Serviço Indefinido";
+
+    // 3. 📧 CHAMAR O ENVIO DE E-MAIL AUTOMATICAMENTE
+    // Não usamos 'await' aqui para que o cliente receba a confirmação rápida, mesmo se o e-mail falhar.
+    sendAppointmentConfirmation(novoAgendamento, nomeServico);
+
+    // 4. Responder ao frontend
+    res.status(201).json(novoAgendamento);
   } catch (err) {
+    console.error("Erro no agendamento ou envio de email:", err);
     res.status(500).json({ error: "Failed to create appointment" });
   }
 });
