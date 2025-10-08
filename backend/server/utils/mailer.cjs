@@ -1,18 +1,21 @@
 const nodemailer = require("nodemailer");
 
+// 🚨 CORREÇÃO DE CONEXÃO: Usar a porta 587 com secure: false (STARTTLS)
 const transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
-  port: 587, // Porta padrão para STARTTLS
-  secure: false, // Deve ser 'false' para a porta 587 (usa STARTTLS)
+  port: 587, // Porta ideal para ambientes de servidor (STARTTLS)
+  secure: false, // Deve ser 'false' para a porta 587
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
   },
-  // Adiciona a opção TLS para garantir que o certificado do Render seja aceito pelo Gmail
+  // ⚠️ Esta opção é essencial para ignorar problemas de certificado em ambientes de nuvem.
   tls: {
     rejectUnauthorized: false,
   },
 });
+
+// ... (o restante da função sendAppointmentConfirmation permanece o mesmo)
 
 // 2. Função de Envio Principal
 exports.sendAppointmentConfirmation = async (agendamento, nomeServico) => {
