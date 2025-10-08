@@ -1,9 +1,9 @@
 const nodemailer = require("nodemailer");
 
-// 1. Configurar o Transportador
 const transporter = nodemailer.createTransport({
-  // Exemplo usando Gmail:
-  service: "gmail",
+  host: "smtp.gmail.com", // 👈 Adicionar host
+  port: 465, // 👈 Adicionar porta (465 é a porta segura)
+  secure: true, // 👈 Adicionar secure
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
@@ -12,10 +12,7 @@ const transporter = nodemailer.createTransport({
 
 // 2. Função de Envio Principal
 exports.sendAppointmentConfirmation = async (agendamento, nomeServico) => {
-  // Você precisa ter o E-MAIL do cliente.
-  // Se você só tem o telefone, o e-mail será enviado para você (o administrador)
-  // ou você deve trocar para o envio por WhatsApp.
-  const destinatario = "SEU_EMAIL_DE_ADMIN@exemplo.com";
+  const destinatario = "jamisson.pvh@gmail.com";
 
   // Formata a data e hora para exibição
   // Assume que agendamento.date é 'YYYY-MM-DD' e agendamento.time é 'HH:MM'
