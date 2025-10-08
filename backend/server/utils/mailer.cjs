@@ -12,7 +12,7 @@ const transporter = nodemailer.createTransport({
 
 // 2. Função de Envio Principal
 exports.sendAppointmentConfirmation = async (agendamento, nomeServico) => {
-  const destinatario = "jamisson.pvh@gmail.com";
+  const destinatario = "jamissondasilvatico@gmail.com";
 
   // Formata a data e hora para exibição
   // Assume que agendamento.date é 'YYYY-MM-DD' e agendamento.time é 'HH:MM'
