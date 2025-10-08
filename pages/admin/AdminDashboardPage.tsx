@@ -19,9 +19,20 @@ const AdminDashboardPage: React.FC = () => {
   };
 
   const filteredAppointments = useMemo(() => {
+    // A string do filterDate será "YYYY-MM"
+    const filterMonthYear = filterDate.substring(0, 7);
+
     return appointments
       .filter((a) => filterService === "all" || a.serviceId === filterService)
-      .filter((a) => !filterDate || a.date === filterDate)
+      .filter((a) => {
+        // Se o filtro não estiver definido, retorna true
+        if (!filterMonthYear) return true;
+
+        // A data da API (a.date) vem como 'YYYY-MM-DDT...'
+        // Compara os 7 primeiros caracteres ("YYYY-MM") da data da API com o filtro.
+        const appointmentMonthYear = a.date.substring(0, 7);
+        return appointmentMonthYear === filterMonthYear;
+      })
       .sort(
         (a, b) =>
           new Date(b.date + " " + b.time).getTime() -
@@ -62,11 +73,11 @@ const AdminDashboardPage: React.FC = () => {
         </div>
         <div>
           <label className="block text-sm font-medium text-light-3 mb-1">
-            Filtrar por Data
+            Filtrar por Mês
           </label>
           <input
-            type="date"
-            value={filterDate}
+            type="month"
+            value={filterDate} //"YYYY-MM"
             onChange={(e) => setFilterDate(e.target.value)}
             className="w-full bg-dark-3 p-2 rounded-md border border-dark-3 focus:border-brand-primary focus:ring-brand-primary"
           />
