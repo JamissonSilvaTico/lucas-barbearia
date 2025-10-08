@@ -36,55 +36,54 @@ const initializeDatabase = async () => {
     await client.query("BEGIN"); // Tabela de serviços
 
     await client.query(`
-      CREATE TABLE IF NOT EXISTS services (
-        id SERIAL PRIMARY KEY,
-        name VARCHAR(100) NOT NULL,
-        price NUMERIC(10, 2) NOT NULL,
-        duration INTEGER NOT NULL
-      );
-    `); // Tabela de agendamentos
+CREATE TABLE IF NOT EXISTS services (
+id SERIAL PRIMARY KEY,
+name VARCHAR(100) NOT NULL,
+duration INTEGER NOT NULL
+);
+`); // Tabela de agendamentos
 
     await client.query(`
-      CREATE TABLE IF NOT EXISTS appointments (
-        id SERIAL PRIMARY KEY,
-        "clientName" VARCHAR(100) NOT NULL,
-        "clientPhone" VARCHAR(20) NOT NULL,
-        "clientInstagram" VARCHAR(100),
-        "serviceId" INTEGER REFERENCES services(id) ON DELETE SET NULL,
-        date DATE NOT NULL,
-        time TIME NOT NULL,
-        "createdAt" TIMESTAMPTZ NOT NULL DEFAULT NOW()
-      );
-    `); // Tabela de configurações (conteúdo da home, senha)
+CREATE TABLE IF NOT EXISTS appointments (
+id SERIAL PRIMARY KEY,
+"clientName" VARCHAR(100) NOT NULL,
+"clientPhone" VARCHAR(20) NOT NULL,
+"clientInstagram" VARCHAR(100),
+"serviceId" INTEGER REFERENCES services(id) ON DELETE SET NULL,
+date DATE NOT NULL,
+time TIME NOT NULL,
+"createdAt" TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+`); // Tabela de configurações (conteúdo da home, senha)
 
     await client.query(`
-      CREATE TABLE IF NOT EXISTS settings (
-        id INTEGER PRIMARY KEY DEFAULT 1,
-        title VARCHAR(255),
-        subtitle VARCHAR(255),
-        description TEXT,
-        "ctaButtonLink" VARCHAR(255),
-        "adminPassword" VARCHAR(100)
-      );
-    `); // Seeding inicial (apenas se as tabelas estiverem vazias)
+CREATE TABLE IF NOT EXISTS settings (
+id INTEGER PRIMARY KEY DEFAULT 1,
+title VARCHAR(255),
+subtitle VARCHAR(255),
+description TEXT,
+"ctaButtonLink" VARCHAR(255),
+"adminPassword" VARCHAR(100)
+);
+`); // Seeding inicial (apenas se as tabelas estiverem vazias)
 
     const servicesCount = await client.query("SELECT COUNT(*) FROM services");
     if (servicesCount.rows[0].count === "0") {
       await client.query(`
-        INSERT INTO services (name, price, duration) VALUES
-        ('Corte de Cabelo', 40, 45),
-        ('Barba', 30, 30),
-        ('Corte e Barba', 65, 75),
-        ('Pezinho', 15, 15);
-      `);
+ INSERT INTO services (name, price, duration) VALUES
+('Corte de Cabelo', 40, 45),
+('Barba', 30, 30),
+('Corte e Barba', 65, 75),
+('Pezinho', 15, 15);
+`);
     }
 
     const settingsCount = await client.query("SELECT COUNT(*) FROM settings");
     if (settingsCount.rows[0].count === "0") {
       await client.query(`
-        INSERT INTO settings (title, subtitle, description, "ctaButtonLink", "adminPassword") VALUES
-        ('Lucas Barbearia', 'Estilo e Precisão em Cada Corte', 'Experimente a combinação perfeita de tradição e modernidade. Nossos barbeiros especializados estão prontos para oferecer o melhor serviço, garantindo um visual impecável e uma experiência única.', 'https://wa.me/5511999999999', 'admin123');
-      `);
+INSERT INTO settings (title, subtitle, description, "ctaButtonLink", "adminPassword") VALUES
+('Lucas Barbearia', 'Estilo e Precisão em Cada Corte', 'Experimente a combinação perfeita de tradição e modernidade. Nossos barbeiros especializados estão prontos para oferecer o melhor serviço, garantindo um visual impecável e uma experiência única.', 'https://wa.me/5511999999999', 'admin123');
+`);
     }
 
     await client.query("COMMIT");
