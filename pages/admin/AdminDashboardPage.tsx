@@ -107,7 +107,35 @@ const AdminDashboardPage: React.FC = () => {
                       <td className="p-4">{app.clientName}</td>
                       <td className="p-4">{service?.name || "N/A"}</td>
                       <td className="p-4">
-                        {app.date} {app.time}
+                        {(() => {
+                          // Tenta obter apenas a parte da data (YYYY-MM-DD)
+                          const rawDateOnly = app.date
+                            ? app.date.split("T")[0]
+                            : "";
+                          const appointmentDate = new Date(rawDateOnly);
+
+                          // Verifica se a data é válida antes de formatar
+                          if (isNaN(appointmentDate.getTime())) {
+                            return <div>Data Inválida</div>;
+                          }
+
+                          const dataFormatada =
+                            appointmentDate.toLocaleDateString("pt-BR");
+
+                          // Remove segundos se existirem (ex: 14:30:00 vira 14:30)
+                          const horaFormatada = app.time.substring(0, 5);
+
+                          return (
+                            <div>
+                              {/* Data: 08/10/2025 */}
+                              <div>{dataFormatada}</div>
+                              {/* Hora: 14:30 */}
+                              <div className="text-sm text-light-3">
+                                {horaFormatada}
+                              </div>
+                            </div>
+                          );
+                        })()}
                       </td>
                       <td className="p-4">{app.clientPhone}</td>
                       <td className="p-4">
