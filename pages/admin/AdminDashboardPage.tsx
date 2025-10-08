@@ -73,7 +73,7 @@ const AdminDashboardPage: React.FC = () => {
         </div>
         <div>
           <label className="block text-sm font-medium text-light-3 mb-1">
-            Filtrar por Mês
+            Filtrar por mês
           </label>
           <input
             type="month"
