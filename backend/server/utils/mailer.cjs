@@ -1,12 +1,16 @@
 const nodemailer = require("nodemailer");
 
 const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com", // 👈 Adicionar host
-  port: 465, // 👈 Adicionar porta (465 é a porta segura)
-  secure: true, // 👈 Adicionar secure
+  host: "smtp.gmail.com",
+  port: 587, // Porta padrão para STARTTLS
+  secure: false, // Deve ser 'false' para a porta 587 (usa STARTTLS)
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
+  },
+  // Adiciona a opção TLS para garantir que o certificado do Render seja aceito pelo Gmail
+  tls: {
+    rejectUnauthorized: false,
   },
 });
 
