@@ -24,8 +24,8 @@ exports.sendAppointmentConfirmation = async (agendamento, nomeServico) => {
     html: `
             <div style="font-family: Arial, sans-serif; color: #EFEFEF; background-color: #1a1a1a; padding: 20px;">
                 <h2 style="color: #FFC300;">Agendamento Confirmado!</h2>
-                <p>Olá <strong>${agendamento.clientName}</strong>,</p>
-                <p>Seu agendamento na Lucas Barbearia foi confirmado com sucesso. Abaixo os detalhes:</p>
+                <p>Olá <strong>!</strong>,</p>
+                <p>O agendamento de ${agendamento.clientName} na Lucas Barbearia foi confirmado com sucesso. Abaixo os detalhes:</p>
                 <div style="background-color: #2a2a2a; padding: 15px; border-radius: 8px; margin-top: 20px;">
                     <p style="margin: 0 0 10px;"><strong>Serviço:</strong> ${nomeServico}</p>
                     <p style="margin: 0 0 10px;"><strong>Data:</strong> ${dataFormatada}</p>
