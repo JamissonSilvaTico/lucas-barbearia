@@ -8,7 +8,7 @@ sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 exports.sendAppointmentConfirmation = async (agendamento, nomeServico) => {
   // 🚨 Usar a variável de ambiente para o e-mail de envio
   const sender = process.env.EMAIL_SENDER;
-  const destinatario = "jamisson.pvh@gmail.com";
+  const destinatario = "jamissondasilvatico@gmail.com";
 
   // Formatações
   const dataFormatada = new Date(
