@@ -1,45 +1,35 @@
-const nodemailer = require("nodemailer");
+const sgMail = require("@sendgrid/mail");
 
-// 🚨 CORREÇÃO DE CONEXÃO: Usar a porta 587 com secure: false (STARTTLS)
-const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 587, // Porta ideal para ambientes de servidor (STARTTLS)
-  secure: false, // Deve ser 'false' para a porta 587
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-  // ⚠️ Esta opção é essencial para ignorar problemas de certificado em ambientes de nuvem.
-  tls: {
-    rejectUnauthorized: false,
-  },
-});
-
-// ... (o restante da função sendAppointmentConfirmation permanece o mesmo)
+// 1. Configurar o SendGrid com a chave API
+// A chave é lida da variável de ambiente SENDGRID_API_KEY
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 // 2. Função de Envio Principal
 exports.sendAppointmentConfirmation = async (agendamento, nomeServico) => {
-  const destinatario = "jamissondasilvatico@gmail.com";
+  // 🚨 Usar a variável de ambiente para o e-mail de envio
+  const sender = process.env.EMAIL_SENDER;
+  const destinatario = "jamisson.pvh@gmail.com";
 
-  // Formata a data e hora para exibição
-  // Assume que agendamento.date é 'YYYY-MM-DD' e agendamento.time é 'HH:MM'
+  // Formatações
   const dataFormatada = new Date(
     `${agendamento.date}T00:00:00`
   ).toLocaleDateString("pt-BR");
+  const horaFormatada = agendamento.time.substring(0, 5);
 
-  const mailOptions = {
-    from: `"Lucas Barbearia" <${process.env.EMAIL_USER}>`,
+  // 3. Montagem do Objeto de E-mail
+  const msg = {
     to: destinatario,
+    from: `Lucas Barbearia <${sender}>`, // Deve ser um e-mail verificado no SendGrid
     subject: `💈 Agendamento Confirmado: ${nomeServico} - ${dataFormatada}`,
     html: `
             <div style="font-family: Arial, sans-serif; color: #EFEFEF; background-color: #1a1a1a; padding: 20px;">
                 <h2 style="color: #FFC300;">Agendamento Confirmado!</h2>
                 <p>Olá <strong>${agendamento.clientName}</strong>,</p>
-                <p>Recebemos seu agendamento com sucesso. Aguardamos a sua visita!</p>
+                <p>Seu agendamento na Lucas Barbearia foi confirmado com sucesso. Abaixo os detalhes:</p>
                 <div style="background-color: #2a2a2a; padding: 15px; border-radius: 8px; margin-top: 20px;">
                     <p style="margin: 0 0 10px;"><strong>Serviço:</strong> ${nomeServico}</p>
                     <p style="margin: 0 0 10px;"><strong>Data:</strong> ${dataFormatada}</p>
-                    <p style="margin: 0;"><strong>Hora:</strong> ${agendamento.time}</p>
+                    <p style="margin: 0;"><strong>Hora:</strong> ${horaFormatada}</p>
                 </div>
                 <p style="margin-top: 20px;">Qualquer dúvida, entre em contato pelo telefone: ${agendamento.clientPhone}</p>
             </div>
@@ -47,9 +37,15 @@ exports.sendAppointmentConfirmation = async (agendamento, nomeServico) => {
   };
 
   try {
-    await transporter.sendMail(mailOptions);
-    console.log(`E-mail enviado com sucesso para: ${destinatario}`);
+    await sgMail.send(msg);
+    console.log(`E-mail enviado via SendGrid para: ${destinatario}`);
   } catch (error) {
-    console.error("ERRO ao enviar e-mail:", error.message);
+    // O SendGrid retorna um objeto de erro detalhado, que é mais fácil de depurar.
+    console.error("ERRO FATAL NO ENVIO SENDGRID:");
+    if (error.response) {
+      console.error(error.response.body);
+    } else {
+      console.error(error);
+    }
   }
 };
