@@ -210,16 +210,17 @@ const BookingPage: React.FC = () => {
             <div className="flex flex-col md:flex-row gap-8">
               <div className="flex-1">
                 <label className="block mb-2 font-semibold">Data</label>
-                <input
-                  type="date"
-                  min={today}
-                  value={selectedDate}
-                  onChange={(e) => {
-                    setSelectedDate(e.target.value);
-                    setSelectedTime("");
-                  }}
-                  className="w-full bg-dark-3 p-3 rounded-lg border border-dark-3 focus:border-brand-primary focus:ring-brand-primary"
-                />
+                <div className="relative inline-block">
+                  <input
+                    type="date"
+                    min={today}
+                    value={selectedDate}
+                    onChange={(e) => {
+                      setSelectedDate(e.target.value);
+                      setSelectedTime("");
+                    }}
+                  />
+                </div>
               </div>
               <div className="flex-1">
                 <label className="block mb-2 font-semibold">
